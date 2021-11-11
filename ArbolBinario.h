@@ -30,6 +30,12 @@ public:
 
   void print();
 
+  void buildArbolInPre(T *in, T *pre, int n);
+
+  void buildArbolInPost(T *in, T *post, int n);
+
+  void espejo();
+
 private:
   T search(T data, NodoArbol<T> *r);
   NodoArbol<T> *put(T data, NodoArbol<T> *r);
@@ -38,6 +44,13 @@ private:
   void preorder(NodoArbol<T> *r);
   void inorder(NodoArbol<T> *r);
   void postorder(NodoArbol<T> *r);
+
+
+  NodoArbol<T> *buildArbolInPre(T *in, T *pre, int start, int end, int pi);
+
+  NodoArbol<T> *buildArbolInPost(T *in, T *post, int start, int end, int pi);
+  
+  void espejo(NodoArbol<T> *r);
 };
 
 /**
@@ -302,4 +315,67 @@ void ArbolBinario<T>::print()
     root->print(false, "");
 }
 
+
+template<class T>
+NodoArbol<T> *ArbolBinario<T>::buildArbolInPre(T *in, T *post, int start, int end, int pi) { 
+    if(start > end)
+        return nullptr;
+  
+    NodoArbol<T> *node = new NodoArbol<T>(post[pi]); 
+    pi--; 
+
+    if(start == end)
+        return node;
+  
+    int iIndex = find(in, start, end, node->getDato()); 
+  
+    node->setDer(buildArbolInPre(in, post, iIndex + 1, end, pi)); 
+    node->setIzq(buildArbolInPre(in, post, start, iIndex - 1, pi)); 
+
+    return node;
+}
+
+template<class T>
+NodoArbol<T> *ArbolBinario<T>::buildArbolInPost(T *in, T *post, int start, int end, int pi) { 
+    if(start > end)
+        return nullptr;
+  
+    NodoArbol<T> *node = new NodoArbol<T>(post[pi]); 
+    pi--; 
+
+    if(start == end)
+        return node;
+  
+    int iIndex = find(in, start, end, node->getDato()); 
+  
+    node->setDer(buildArbolInPost(in, post, iIndex + 1, end, pi)); 
+    node->setIzq(buildArbolInPost(in, post, start, iIndex - 1, pi)); 
+
+    return node;
+} 
+
+template<class T> void ArbolBinario<T>::buildArbolInPost(T *in, T *post, int n) {
+    this->raiz = buildArbolInPost(in, post, 0, n - 1, n - 1);
+}
+
+template<class T> void ArbolBinario<T>::buildArbolInPre(T *in, T *pre, int n) {
+    this->raiz = buildArbolInPre(in, pre, 0, n - 1, n - 1);
+}
+
+template<class T> void ArbolBinario<T>::espejo(NodoArbol<T> *r) {
+    if(r == nullptr) {
+        return;
+    }else{
+        espejo(r->getIzq());   
+        espejo(r->getDer());   
+    
+        NodoArbol<T> *aux = r->getIzq();
+        r->setIzq(r->getDer());
+        r->setDer(aux);
+    }
+}
+
+template<class T> void ArbolBinario<T>::espejo() {
+    espejo(raiz);
+}
 #endif // U05_ARBOL_ARBOL_ARBOLBINARIO_H_
